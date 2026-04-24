@@ -8,16 +8,43 @@ AIM: Towards Azure Kubernetes CI/CD setup.
 
 
 # local dev
-cd app
-docker build -t aks-demo:v1 .
-cd ..
-k3d image import aks-demo:v1 -c aks-local
-kubectl apply -f k8s/deployment.local.yaml
-kubectl apply -f k8s/service.yaml
-kubectl get pods
-kubectl get svc
-kubectl port-forward svc/aks-demo-service 8080:8080
-[Navigate to] http://localhost:8080.
+
+a. Pre req: Open Docker Desktop and start containers.
+
+i. Assumption: Your Kubernetes setup is running a Service that uses the load balancer.  
+
+i.   [Navigate to your project in powershell]
+
+ii.  Create Kubernetes cluster k3d cluster create aks-local --config k3d-aks-local.yaml
+
+iii. Confirm cluster creation k3d cluster list
+
+iv.  Start cluster 'k3d cluster start [cluster name]'
+ 
+
+b. Deploy Service on Kubernetes Cluster
+
+i.   cd app
+
+ii.  docker build -t aks-demo:v1 .
+
+iii. cd ..
+
+iv.  k3d image import aks-demo:v1 -c aks-local
+
+v.   kubectl apply -f k8s/deployment.local.yaml
+
+vi.  kubectl apply -f k8s/service.yaml
+
+c. Verify deployment and launch
+
+i. kubectl get pods
+
+ii. kubectl get svc aks-demo-service. You should see service type of load balancer.
+
+iii. kubectl port-forward svc/aks-demo-service 8080:8080
+
+iv. [Navigate to] http://localhost:8080.
 
 
 ## Version 0.2
