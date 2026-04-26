@@ -40,15 +40,20 @@ v.   kubectl apply -f k8s/deployment.local.yaml
 
 vi.  kubectl apply -f k8s/service.yaml
 
+v.   kubectl apply -f k8s/cloudflared/cloudflared-deployment.yaml
+
+
 c. Verify deployment and launch
 
 i. kubectl get pods
 
 ii. kubectl get svc aks-demo-service. 
 
-You should see service type of load balancer. It is a traefik load balancer. You can see it via:
+iii. In version 0.3, You should see service type of load balancer. It is a traefik load balancer. You can see it via:
 
 - kubectl get pods -n kube-system | findstr traefik
+
+In version 0.4 onwards, cluster IP is used, i.e. not load balancer.
 
 iv. [Navigate to] http://localhost:8080.
 
@@ -108,11 +113,15 @@ See Annex A for process.
 
 ## Version 0.5
 
-Objective: Cloudflare → Tunnel → cloudflared → Ingress → Service → Pods
+26 April 2026 20:13 Objective: Cloudflare → Tunnel → cloudflared → Ingress → Service → Pods
 
 ![Working https Screenshot with cluster ingress](./screenshots/CloudfareTalkingToLocalKubernetesClusterViaClusterIngress.jpg)
 
 See Annex A for process.
+
+### Version 0.5.1
+
+26 April 2026 20:14 updates to readme to incorporate cloudflared-deployment.yaml to setup and in Annex A.
 
 ## Annex A - How to create a connection to Cloudflare
 
@@ -248,6 +257,9 @@ This can be done via CloudFlare routing through exposed ingress or directly thro
 - Service: Cloudflare → Tunnel → cloudflared → aks-demo-service → Pods
 
 <i>Note: To get the benefits of Cloudflare, the ingress path is preferred. See Release Version 0.5</i>
+
+
+
 
 #### a) Tunnel uses Service
 
@@ -401,6 +413,71 @@ services:
       - ./config.yml:/etc/cloudflared/config.yml
       - ./<tunnel-id>.json:/etc/cloudflared/<tunnel-id>.json
     network_mode: bridge
+    
+    
+#### c) Common file for Tunnel
+
+The Deployment that:
+
+i) Runs cloudflared inside your cluster
+
+ii) Connects to Cloudflare Tunnel
+
+iii) Forwards traffic to NGINX Ingress Controller
+
+iv) Makes your cluster private
+
+v) Removes the need for public LoadBalancers
+
+It is essential as without this Deployment:
+
+i) Your tunnel would not connect
+
+ii) Your domain would not route
+
+iii) Your cluster would not be reachable
+
+##### k8s/cloudflared-deployment.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudflared
+  labels:
+    app: cloudflared
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloudflared
+  template:
+    metadata:
+      labels:
+        app: cloudflared
+    spec:
+      containers:
+      - name: cloudflared
+        image: cloudflare/cloudflared:latest
+        args:
+          - tunnel
+          - --config
+          - /etc/cloudflared/config.yml
+          - run
+        volumeMounts:
+        - name: config
+          mountPath: /etc/cloudflared/config.yml
+          subPath: config.yml
+        - name: creds
+          mountPath: /etc/cloudflared/credentials.json
+          subPath: credentials.json
+      volumes:
+      - name: config
+        configMap:
+          name: cloudflared-config
+      - name: creds
+        secret:
+          secretName: cloudflared-credentials
+
 
 ### STEP 9 - Deploy cloudflared inside Kubernetes
 
