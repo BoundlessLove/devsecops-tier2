@@ -1,7 +1,8 @@
 
-AIM: Towards Azure Kubernetes CI/CD setup.
+# AIM
 
-14 April 2026 - Under Construction
+Local Kubernetes setup using Docker Desktop and Cloudflare.
+
 
 ## Version 0.1
 19 April 2026 17:00 - Working locally on Docker desktop with:
@@ -17,6 +18,7 @@ a. Create cluster with Load Balancer
 
 <i>Assumption: Your Kubernetes setup is running a Service that uses the load balancer.  </i>
 
+```
 i.   [Navigate to your project in powershell]
 
 ii.  Create Kubernetes cluster k3d cluster create aks-local --config k3d-aks-local.yaml
@@ -24,10 +26,11 @@ ii.  Create Kubernetes cluster k3d cluster create aks-local --config k3d-aks-loc
 iii. Confirm cluster creation k3d cluster list
 
 iv.  Start cluster 'k3d cluster start [cluster name]'
- 
+ ```
 
 b. Deploy Service on Kubernetes Cluster
 
+```
 i.   cd app
 
 ii.  docker build -t aks-demo:v1 .
@@ -39,11 +42,11 @@ iv.  k3d image import aks-demo:v1 -c aks-local
 v.   kubectl apply -f k8s/deployment.local.yaml
 
 vi.  kubectl apply -f k8s/service.yaml
-
-v.   kubectl apply -f k8s/cloudflared/cloudflared-deployment.yaml
-
+```
 
 c. Verify deployment and launch
+
+```
 
 i. kubectl get pods
 
@@ -57,6 +60,7 @@ In version 0.4 onwards, cluster IP is used, i.e. not load balancer.
 
 iv. [Navigate to] http://localhost:8080.
 
+```
 
 ## Existing Cluster
 
@@ -64,6 +68,7 @@ a. Start cluster
 
 <i>Pre req: Open Docker Desktop.</i>
 
+```
 i. Confirm cluster creation by running "k3d cluster list",
 
 ii.  Start cluster 'k3d cluster start [cluster name]',
@@ -77,7 +82,7 @@ ii. kubectl get svc aks-demo-service. You should see service type of load balanc
 - kubectl get pods -n kube-system | findstr traefik
 
 iv. [Navigate to] http://localhost:8080.
-
+```
 
 
 ## Version 0.2
@@ -131,6 +136,11 @@ See Annex A for process.
 
 26 April 2026 20:14 updates to readme to incorporate cloudflared-deployment.yaml to setup and in Annex A.
 
+## Version 1.0
+
+26 April 2026 15:18 updates to readme.md for publishing
+
+
 ## Annex A - How to create a connection to Cloudflare
 
 ### SUMMARY
@@ -143,7 +153,9 @@ STEP 1-6 creates a temporary linux container, in order to create a Cloudflare cr
 
 •	A writable filesystem
 
-A Docker container satisfies all three. Further, since it is outside Kubernetes, Cloudflare allows the JSON to be generated.
+A Docker container satisfies all three. Further, since it is outside Kubernetes, Cloudflare allows the JSON to be generated. STEP 7 sets up a container in the kubernetes cluster that hosts a connection to CLOUDFLARE. It uses either an ingress which connects the cluster's service endpoint to CLOUDFLARE (Load Balancer) or sets up a nginx server that is exposed to CLOUDFLARE (Cluster IP). The latter is better as it isolates the cluster, exposing endpoints only through the nginx server and also is able to use extra features added by the use of CLOUDFLARE like DDOS protection. Step 8 deploys the CLOUDFLARE container to the cluster and tells the cluster about it. STEP 9 perfoems verification.
+
+
 
 
 ### PRE-REQ
@@ -505,7 +517,7 @@ spec:
           secretName: cloudflared-credentials
 ```
 
-### STEP 9 - Deploy cloudflared inside Kubernetes
+### STEP 8 - Deploy cloudflared inside Kubernetes
 
 You could be deploying cloudflared for first time or updating existing:
 
@@ -515,38 +527,49 @@ Note: Extracted .json from step 4 will be used.
 
 a. Create secret:
 
+```
 kubectl create secret generic cloudflared-credentials `
   --from-file=credentials.json=k8s/cloudflared/credentials/aa1d965e-63ed-4002-be37-7a659a915cdb.json
   
 kubectl create secret generic cloudflared-cert \
   --from-file=cert.pem=k8s/cloudflared/credentials/cert.pem
-  
+  ```
 
 b. Update config.yml and docker-compose.yml in C:\cloudflared (Update the reference to the tunnel id * 3).
 
-c. Create configmap:
+c. Create configmap and tell the cluster of this new pod:
 
-kubectl create configmap cloudflared-config --from-file=k8s/cloudflared/config.yml
+```kubectl create configmap cloudflared-config --from-file=k8s/cloudflared/config.yml
+
+kubectl apply -f k8s/cloudflared/cloudflared-deployment.yaml
+```
   
+
 #### ii. Update Existing Deployment
 
 a.  Apply the updated config
 
-- kubectl delete configmap cloudflared-config
 
-- kubectl create configmap cloudflared-config --from-file=k8s/cloudflared/config.yml
+```kubectl delete configmap cloudflared-config
 
-- kubectl rollout restart deployment cloudflared
+kubectl create configmap cloudflared-config --from-file=k8s/cloudflared/config.yml
+
+kubectl rollout restart deployment cloudflared
+
+```
   
 You should now hit your app through:
 
 Cloudflare → Tunnel → cloudflared → NGINX → Service → Pods
 
-### STEP 10 - Verify 
+### STEP 9 - Verify 
 
 a) Check Cloudflared logs:
 
+```
+
 kubectl logs -f deployment/cloudflared
+```
 
 You should see:
 
