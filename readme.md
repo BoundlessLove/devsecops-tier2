@@ -56,11 +56,11 @@ iii. In version 0.3, You should see service type of load balancer. It is a traef
 
 - kubectl get pods -n kube-system | findstr traefik
 
-In version 0.4 onwards, cluster IP is used, i.e. not load balancer.
-
 iv. [Navigate to] http://localhost:8080.
 
 ```
+
+<i>Note: Version 0.4 onwards, traefik load balancer is used and CLOUDFLARE tunnel container is added and applied to cluster with an ingress that exposes the cluster's service. Version 0.5 improves on version 0.4 by replacing load balancer with cluster IP, adding a nginx server and an ingress that exposes only the nginx server.</i>
 
 ## Existing Cluster
 
