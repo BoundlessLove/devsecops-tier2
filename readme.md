@@ -150,6 +150,8 @@ d. Project structure:
 
 i) Example structure:
 
+```
+
 k8s/
 
   cloudflared/
@@ -173,6 +175,8 @@ k8s/
     aks-demo-deployment.yaml
 
     aks-demo-service.yaml
+    
+```
 
 ii) Add a .gitignore entry:
 
@@ -269,6 +273,7 @@ Note: In your editor encoding replace <CRLF> with <LF>
 
 ##### config.yml
 
+```yaml
 tunnel: <tunnel-id>
 credentials-file: /etc/cloudflared/credentials.json
 
@@ -276,10 +281,11 @@ ingress:
   - hostname: staging.systematicdefence.tech
     service: http://aks-demo-service.default.svc.cluster.local:80
   - service: http_status:404
-
+```
 
 ##### docker-compose.yml
 
+``` yaml
 version: "3.8"
 
 services:
@@ -293,8 +299,11 @@ services:
       - ./<tunnel-id>.json:/etc/cloudflared/<tunnel-id>.json
     network_mode: bridge
 
+```
+
 ##### ingress/staging-ingress-via-service.local.yaml
 
+```yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -312,7 +321,7 @@ spec:
             port:
               number: 8080
 
-
+```
 
 #### b) Tunnel uses Ingress
 
@@ -346,11 +355,14 @@ Note: In your editor encoding replace <CRLF> with <LF>
 
 ##### ingress/ingress-nginx.local.yml
 
+```yaml
 apiVersion: v1
 kind: Namespace
 metadata:
   name: ingress-nginx
+
 ---
+
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
@@ -365,9 +377,11 @@ spec:
     controller:
       service:
         type: ClusterIP
+```
         
 ##### ingress/staging-ingress-nginx.local.yaml
 
+```yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -387,9 +401,11 @@ spec:
             name: aks-demo-service
             port:
               number: 80
+```
 
 ##### config.yml
 
+```yaml
 tunnel: <tunnel-id>
 credentials-file: /etc/cloudflared/credentials.json
 
@@ -397,10 +413,11 @@ ingress:
   - hostname: staging.systematicdefence.tech
     service: http://ingress-nginx-controller.ingress-nginx.svc.cluster.local:80
   - service: http_status:404
-
+```
 
 ##### docker-compose.yml
 
+```yaml
 version: "3.8"
 
 services:
@@ -413,7 +430,7 @@ services:
       - ./config.yml:/etc/cloudflared/config.yml
       - ./<tunnel-id>.json:/etc/cloudflared/<tunnel-id>.json
     network_mode: bridge
-    
+```    
     
 #### c) Common file for Tunnel
 
@@ -439,6 +456,7 @@ iii) Your cluster would not be reachable
 
 ##### k8s/cloudflared-deployment.yaml
 
+```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -477,7 +495,7 @@ spec:
       - name: creds
         secret:
           secretName: cloudflared-credentials
-
+```
 
 ### STEP 9 - Deploy cloudflared inside Kubernetes
 
