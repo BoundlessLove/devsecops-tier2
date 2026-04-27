@@ -3,12 +3,7 @@
 
 Local Kubernetes setup using Docker Desktop and Cloudflare.
 
-
-## Version 0.1
-19 April 2026 17:00 - Working locally on Docker desktop with:
-
-
-# local dev
+# HOW TO SETUP USING DOCKER DESKTOP LOCALLY
 
 ## New Cluster in Windows
 
@@ -84,6 +79,10 @@ ii. kubectl get svc aks-demo-service. You should see service type of load balanc
 iv. [Navigate to] http://localhost:8080.
 ```
 
+
+
+## Version 0.1
+19 April 2026 17:00 - Cluster working locally on Docker desktop.
 
 ## Version 0.2
 19 April 2026 19:37 - Pre-req is creating an Azure Container Registry (ACR) and an Azure Kubernetes Cluster (containing the ACR). First attempt at CICD AKS. 
