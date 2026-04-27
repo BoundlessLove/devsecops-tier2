@@ -137,8 +137,9 @@ See Annex A for process.
 
 ## Version 1.0
 
-26 April 2026 15:18 updates to readme.md for publishing
+26 April 2026 15:18 updates to readme.md for publishing. Further see, following repo which is an extension of this one. It helps to Transition from this local Kubernetes setup to Azure Kubernetes seamlessly (see Version 1.1):
 
+https://github.com/BoundlessLove/devsecops-tier4
 
 ## Annex A - How to create a connection to Cloudflare
 
