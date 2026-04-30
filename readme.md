@@ -3,7 +3,7 @@
 
 This repository covers Local Kubernetes setup using Docker Desktop and Cloudflare. For Azure Kubernetes Setup, which flows as a next step from this repository, please refer to:
 
-- [Azure Kubernetes Setup](https://github.com/BoundlessLove/devsecops-tier2/tree/staging/readme.md)
+- [Azure Kubernetes Setup](https://github.com/BoundlessLove/devsecops-tier4/tree/staging/readme.md)
 
 # HOW TO SETUP USING DOCKER DESKTOP LOCALLY
 
